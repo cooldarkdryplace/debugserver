@@ -7,18 +7,12 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"sync"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-var (
-	mu      sync.Mutex
-	storage = make(map[string][]Request)
-	records = &List{}
-)
-
-var emptyResponse = []byte("[]")
+var storage = NewStorage()
+var emptyResponse = []byte("[]\n")
 
 func API() http.Handler {
 	router := httprouter.New()
@@ -26,9 +20,10 @@ func API() http.Handler {
 	router.DELETE("/bucket/:id", record)
 	router.GET("/bucket/:id", record)
 	router.PATCH("/bucket/:id", record)
+	router.PUT("/bucket/:id", record)
 	router.POST("/bucket/:id", record)
 
-	router.DELETE("/report/:id", show)
+	router.DELETE("/report/:id", del)
 	router.GET("/report/:id", show)
 
 	return router
@@ -54,36 +49,31 @@ func record(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 
-	mu.Lock()
-	requests := storage[id]
-	storage[id] = append(requests, Request{
+	storage.Add(id, Request{
 		URL:           r.URL.Path,
 		Method:        r.Method,
 		Headers:       r.Header,
 		Body:          base64.StdEncoding.EncodeToString(body.Bytes()),
 		ContentLength: r.ContentLength,
 	})
-	records.Add(id)
-	mu.Unlock()
 }
 
 func show(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	id := p.ByName("id")
-
-	mu.Lock()
-	requests := storage[id]
+	requests := storage.Get(p.ByName("id"))
 
 	if requests == nil {
-		mu.Unlock()
 		w.Write(emptyResponse)
 		return
 	}
-	mu.Unlock()
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "\t")
 
 	if err := encoder.Encode(requests); err != nil {
-		log.Printf("Failed to serialize payload with ID: %q, error: %s", id, err)
+		log.Printf("Failed to serialize payload: %s", err)
 	}
+}
+
+func del(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	storage.Del(p.ByName("id"))
 }

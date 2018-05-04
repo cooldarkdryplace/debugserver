@@ -11,15 +11,6 @@ import (
 	"github.com/cooldarkdryplace/debugserver"
 )
 
-// NewRedirectServer to handle redirects to HTTPS.
-func NewRedirectServer(handler http.Handler) *http.Server {
-	s := &http.Server{
-		Addr:    ":8080",
-		Handler: handler,
-	}
-	return s
-}
-
 func main() {
 	http.Handle("/", debugserver.API())
 
