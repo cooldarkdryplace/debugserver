@@ -17,14 +17,14 @@ var emptyResponse = []byte("[]\n")
 func API() http.Handler {
 	router := httprouter.New()
 
-	router.DELETE("/bucket/:id", record)
-	router.GET("/bucket/:id", record)
-	router.PATCH("/bucket/:id", record)
-	router.PUT("/bucket/:id", record)
-	router.POST("/bucket/:id", record)
+	router.DELETE("/buckets/:id", record)
+	router.GET("/buckets/:id", record)
+	router.PATCH("/buckets/:id", record)
+	router.PUT("/buckets/:id", record)
+	router.POST("/buckets/:id", record)
 
-	router.DELETE("/report/:id", del)
-	router.GET("/report/:id", show)
+	router.DELETE("/reports/:id", del)
+	router.GET("/reports/:id", show)
 
 	return router
 }

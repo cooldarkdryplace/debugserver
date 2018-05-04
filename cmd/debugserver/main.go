@@ -22,7 +22,7 @@ func main() {
 	signal.Notify(signalChan, os.Interrupt)
 
 	s := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":9090",
 		Handler: http.DefaultServeMux,
 	}
 
