@@ -6,7 +6,7 @@ import (
 )
 
 type Storage struct {
-	sync.Mutex
+	sync.RWMutex
 	buckets map[string][]Request
 	records *list
 }
@@ -27,8 +27,8 @@ func NewStorage() *Storage {
 }
 
 func (s *Storage) Get(id string) []Request {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 	return s.buckets[id]
 }
 
