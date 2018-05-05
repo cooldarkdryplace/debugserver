@@ -102,10 +102,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.SetIndent("", "\t")
-
-	if err := encoder.Encode(requests); err != nil {
+	if err := json.NewEncoder(w).Encode(requests); err != nil {
 		log.Printf("Failed to serialize payload: %s", err)
 	}
 }
