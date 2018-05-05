@@ -5,6 +5,22 @@ import (
 	"testing"
 )
 
+func contains(s string, l *list) bool {
+	item := l.First
+
+	for {
+		if item == nil {
+			return false
+		}
+
+		if item.Value == s {
+			return true
+		}
+
+		item = item.Next
+	}
+}
+
 func TestStoreSingleRequest(t *testing.T) {
 	storage := NewStorage()
 	r := Request{Body: "test"}
@@ -22,7 +38,7 @@ func TestStoreSingleRequest(t *testing.T) {
 	}
 }
 
-func TestAddSingleRecort(t *testing.T) {
+func TestAddSingleRecord(t *testing.T) {
 	l := &list{}
 	expected := "yo"
 	l.add(expected)
@@ -38,13 +54,43 @@ func TestAddSingleRecort(t *testing.T) {
 	}
 }
 
-func TestDeleteRecord(t *testing.T) {
+func TestDeleteTheOnlyRecord(t *testing.T) {
 	l := &list{}
 	value := "test"
 	l.add(value)
 
 	l.del(value)
 	if l.First != nil {
+		t.Error("Reference to first item was not updated")
+	}
+
+	if l.Last != nil {
+		t.Error("Reference to last item was not updated")
+	}
+}
+
+func TestDeleteMiddleRecord(t *testing.T) {
+	var (
+		l      = &list{}
+		first  = "test1"
+		target = "test2"
+		last   = "test3"
+	)
+
+	l.add(first)
+	l.add(target)
+	l.add(last)
+
+	l.del(target)
+	if l.First.Value != first {
+		t.Error("Unexpected first item")
+	}
+
+	if l.Last.Value != last {
+		t.Error("Unexpected last item")
+	}
+
+	if contains(target, l) {
 		t.Error("Item was not deleted")
 	}
 }
@@ -73,5 +119,13 @@ func TestAddMultipleRecords(t *testing.T) {
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Got: %s, expected: %s", actual, expected)
+	}
+
+	if l.First.Value != expected[0] {
+		t.Error("Unexpected first item")
+	}
+
+	if l.Last.Value != expected[len(expected)-1] {
+		t.Error("Unexpected last item")
 	}
 }

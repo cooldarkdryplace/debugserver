@@ -96,6 +96,14 @@ func (l *list) add(s string) {
 
 func (l *list) del(s string) {
 	item := l.First
+	if item.Value == s {
+		l.First = item.Next
+		if item == l.Last {
+			l.Last = nil
+		}
+		return
+	}
+
 	for {
 		if item == nil || item.Next == nil {
 			return
