@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	http.Handle("/", debugserver.API())
+	http.HandleFunc("/", debugserver.API)
 
 	var (
 		errChan    = make(chan error)
