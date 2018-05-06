@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -69,6 +70,11 @@ func record(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to sptil remote address to IP and Port: %s", err)
 	}
 
+	params, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		http.Error(w, "bad query params", http.StatusBadRequest)
+	}
+
 	bodyReader := http.MaxBytesReader(w, r.Body, 1<<20)
 	defer bodyReader.Close()
 	var body bytes.Buffer
@@ -81,7 +87,7 @@ func record(w http.ResponseWriter, r *http.Request) {
 	storage.Add(id, Request{
 		RemoteIP:      ip,
 		URL:           r.URL.Path,
-		QueryParams:   r.URL.RawQuery,
+		QueryParams:   params.Encode(),
 		Method:        r.Method,
 		Headers:       r.Header,
 		Body:          base64.StdEncoding.EncodeToString(body.Bytes()),
