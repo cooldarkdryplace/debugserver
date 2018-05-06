@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const TTL = 60 * 5
+
 type Storage struct {
 	sync.RWMutex
 	buckets map[string][]Request
@@ -19,7 +21,7 @@ func NewStorage() *Storage {
 
 	go func() {
 		for t := range time.Tick(5 * time.Second) {
-			s.Expire(t.Unix() - 20)
+			s.Expire(t.Unix() - TTL)
 		}
 	}()
 
